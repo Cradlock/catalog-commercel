@@ -1,0 +1,70 @@
+Info:
+cashier-numbers : []
+mbank-numbers : []
+title : str
+logo : ico 
+
+
+
+
+                                            Category:
+                                        last-update: time
+                                        range-update : time
+                                        title : str 
+
+           Brand:
+        last-update: time
+        range-update : time
+        title 
+                                
+
+                        Gallery:
+                    img : 
+                    product : 
+
+    
+
+Product:
+
+title 
+price                         
+discount
+desc 
+count 
+date
+category
+brand 
+cover 
+
+
+
+                                Event:
+                            date_start : dateTime 
+                            date_end : dateTime 
+                            desc : str 
+                            discount_precent_cat : float
+                            discount_precent_cat : float
+                            categories : []
+                            brands : []
+
+
+
+
+User:
+username
+bucket ; product []
+email
+number
+
+
+
+
+
+
+                                               Cheque:
+                                            date ; date time 
+                                            title ; str 
+                                            price ; integer
+                                            client_id ; integer 
+                                            
+

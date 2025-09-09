@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+*.egg
+*.egg-info
+dist/
+build/
+*.log
+
+# Virtual environment
+env/
+venv/
+ENV/
+.env/
+.venv/
+
+# Django
+*.sqlite3
+db.sqlite3
+*.pot
+*.pyc
+*.mo
+*.log
+*.bak
+
+# Media files
+media/
+# Если хочешь хранить загруженные файлы в репозитории — убери эту строку
+
+# Static files (собранные фронтендом)
+staticfiles/
+static/
+# Если собираешь React/Vue/Angular в папку static, можно игнорировать только build/
+
+# Django migrations
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# PyCharm / VSCode
+.idea/
+.vscode/
+
+# Mac / Windows
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# Django Q / Celery
+django_q/
+celerybeat-schedule

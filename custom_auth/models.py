@@ -6,12 +6,9 @@ from django.contrib.auth.models import AbstractUser
 
 class Profile(AbstractUser):
     email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=20)
     bucket = models.ManyToManyField(Product)
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
-
 
 
 

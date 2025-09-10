@@ -7,4 +7,15 @@ urlpatterns = [
     path("brands/",BrandsListView.as_view()),
     path("products/",ProductListView.as_view()),
     path("products/<int:id>",ProductDetailView.as_view()),
+
+
+# filter: price,discount,category,brand
+
+
+# search: title
+
+
+# classification filter: по акции,по новизне,популярные
+
+
 ]

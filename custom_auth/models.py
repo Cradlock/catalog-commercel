@@ -18,7 +18,6 @@ class Info(models.Model):
     title = models.CharField(max_length=255)
     logo = models.FileField()
 
-
 class Event(models.Model):
     date_start = models.DateTimeField(auto_now_add=True)
     date_end = models.DateTimeField(blank=True,null=True)

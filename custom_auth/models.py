@@ -24,8 +24,8 @@ class Event(models.Model):
     
     title = models.CharField(max_length=255)
     desc = models.TextField()
-    discount_precent_cat = models.FloatField(default=1)
-    discount_precent_brand = models.FloatField(default=1)
+
+    discount_precent = models.FloatField(default=1)
     
     brands = models.ManyToManyField(Brand)
     categories = models.ManyToManyField(Category)

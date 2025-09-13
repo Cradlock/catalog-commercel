@@ -48,9 +48,17 @@ def refresh_events(request):
     events_deactive.delete()
 
     for event in events_active:
-        if event.categories :
-
+        q = Q()
+        if event.categories.exists():
+            q |= Q(category__in=event.categories.all())
+        if event.brands.exists():
+            q |= Q(brand__in=event.brands.all())
+        if not q:
+            continue
         
+        products = Product.objects.filter(q)
+        products.update(discount=event.discount_precent)
+
     return JsonResponse({"active":active_events,"deactivate":deactive_events},status=200)
     
 

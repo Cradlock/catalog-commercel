@@ -7,9 +7,9 @@ from django.contrib.auth.models import AbstractUser
 class Profile(AbstractUser):
     email = models.EmailField(unique=True)
     bucket = models.ManyToManyField(Product)
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
-
 
 
 class Info(models.Model):
@@ -27,12 +27,17 @@ class Event(models.Model):
     discount_precent_cat = models.FloatField(default=1)
     discount_precent_brand = models.FloatField(default=1)
     
-    brands = models.JSONField()
-    categories = models.JSONField()
+    brands = models.ManyToManyField(Brand)
+    categories = models.ManyToManyField(Category)
 
 
     def __str__(self):
         return self.title
+
+
+class GalleryEvent(models.Model):
+    file = models.ImageField()
+    event_id = models.ForeignKey(Event,on_delete=models.CASCADE)
 
 
 class Cheque(models.Model):
@@ -40,3 +45,4 @@ class Cheque(models.Model):
     product_id = models.ForeignKey(Product,on_delete=models.SET_NULL,null=True)
     price = models.PositiveIntegerField()
     client_id = models.ForeignKey(Profile,on_delete=models.SET_NULL,null=True)
+

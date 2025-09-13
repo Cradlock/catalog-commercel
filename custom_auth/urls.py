@@ -13,7 +13,6 @@ urlpatterns = [
     path("google/login/", GoogleRedirectView.as_view()),
     path("google/callback/", GoogleCallbackView.as_view()),
 
-
 ]
 
 

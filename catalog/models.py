@@ -7,14 +7,11 @@ class Category(models.Model):
     title = models.CharField(max_length=100)
     range_update = models.DurationField(default=timedelta(hours=24))
     last_update = models.DateTimeField(auto_now_add=True)
+    discount = models.FloatField(default=1.0)
 
 
 class Brand(models.Model):
     title = models.CharField(max_length=100)
-    range_update = models.DurationField(default=timedelta(hours=24))
-    last_update = models.DateTimeField(auto_now_add=True)
-
-
 
 class Product(models.Model):
     title = models.CharField(max_length=255)
@@ -25,6 +22,9 @@ class Product(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(Category,on_delete=models.SET_NULL,null=True)
     brand = models.ForeignKey(Brand,on_delete=models.SET_NULL,null=True)
+    last_buy = models.DateTimeField(auto_now_add=True)
+    cover = models.ImageField()
+    
 
 
     def __str__(self):
@@ -34,7 +34,6 @@ class Product(models.Model):
 
 class Gallery(models.Model):
     file = models.ImageField()
-    is_main = models.BooleanField(default=False)
     product = models.ForeignKey(Product,on_delete=models.CASCADE)
 
 

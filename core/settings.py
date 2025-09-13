@@ -13,13 +13,15 @@ load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+CONTROL_KEY = os.getenv("CONTROL_KEY")
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@a_s&q%&6uzi$9dy#z#th#ewp-wfm#gd%zq$$t4f)irxcmqp#('
+SECRET_KEY = os.getenv("SECRET_KEY")
 
-GOOGLE_SECRET_KEY = "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"
-GOOGLE_PUBLIC_ID = "1006050496302-fvs28rds7v2jnnmsu514qvhcne15i9km.apps.googleusercontent.com"
+GOOGLE_SECRET_KEY = os.getenv("GOOGLE_SECRET_KEY")
+GOOGLE_PUBLIC_ID = os.getenv("GOOGLE_PUBLIC_ID")
 
+GOOGLE_OWNER = os.getenv("GOOGLE_OWNER")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'catalog',
     'custom_auth',
+    'worker',
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -80,7 +83,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 
 CORS_ALLOWED_ORIGINS = [
-    # FRONTEND_URL,
+    FRONTEND_URL,
     "https://www.youtube.com"
 ]
 

@@ -19,13 +19,16 @@ class Info(models.Model):
     logo = models.FileField()
 
 class Event(models.Model):
+    is_special = models.BooleanField(default=False)
+    type_special = models.CharField(null=True,blank=True,max_length=25)
+
     date_start = models.DateTimeField(auto_now_add=True)
     date_end = models.DateTimeField(blank=True,null=True)
     
     title = models.CharField(max_length=255)
     desc = models.TextField()
 
-    discount_precent = models.FloatField(default=1)
+    discount_precent = models.FloatField(default=1.0)
     
     brands = models.ManyToManyField(Brand)
     categories = models.ManyToManyField(Category)

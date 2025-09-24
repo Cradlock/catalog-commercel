@@ -4,12 +4,18 @@ from django.http import HttpResponseRedirect
 from rest_framework.views import APIView
 from rest_framework import status
 from django.conf import settings
+from django.contrib.auth.hashers import make_password
+from django.utils.crypto import get_random_string
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
 import datetime
 import jwt
 import requests
 from .models import *
+from .lib import is_authenticate
+from django.http import JsonResponse,HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from urllib.parse import urlparse
 User = Profile
 
 
@@ -35,8 +41,6 @@ class UsernameOrEmailBackend(ModelBackend):
         if user.check_password(password) and self.user_can_authenticate(user):
             return user
         return None
-
-
 
 
 
@@ -100,8 +104,10 @@ class GoogleCallbackView(APIView):
         user_data = r.json()
         email = user_data.get("email")
         username = email.split("@")[0]
+        
 
-        user, created = User.objects.get_or_create(email=email, defaults={"username": username})
+        random_password = get_random_string(length=12) 
+        user, created = User.objects.get_or_create(email=email, defaults={"username": username,"password": make_password(random_password)})
         
         # Создаём JWT токен
         payload = {
@@ -109,19 +115,109 @@ class GoogleCallbackView(APIView):
             "exp": datetime.datetime.utcnow() + datetime.timedelta(days=1),
         }
         jwt_token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+        
+
+        is_admin = user.is_staff or user.is_superuser
+
+
 
         # Редирект на фронтенд с cookie
-        response = HttpResponseRedirect(settings.FRONTEND_URL)
+        response = HttpResponseRedirect(settings.FRONTEND_URL+f"?is_admin={'true' if is_admin else 'false'}")
         response.set_cookie(
             key="access_token",
             value=jwt_token,
-            httponly=True,
-            secure=False,  
-            samesite="Lax",
+            httponly=True, 
+            secure=True,  
+            samesite="None",
+            domain=urlparse(settings.HOST).hostname ,     # привязка к домену бэка
+            path="/",
             max_age=24*60*60
         )
 
         return response
     
 
+@csrf_exempt
+def login_view(request):
+    if request.method != "POST":
+        return HttpResponse("Method not allowed",status=500) 
+    
+    username = request.POST.get("username")
+    password = request.POST.get("password")
 
+    if username is None:
+        return  HttpResponse("Not enough data",status=400)
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        try:
+            user = User.objects.get(email=username)
+        except User.DoesNotExist:
+            return HttpResponse("Unauthorized",status=401)
+        
+    if user.check_password(password):
+        payload = {
+            "user_id": user.id,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(days=1),
+        }
+        jwt_token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+        
+
+        is_admin = user.is_staff or user.is_superuser
+
+        res = JsonResponse({"is_admin": is_admin}, status=200)
+        res.set_cookie(
+            key="access_token",
+            value=jwt_token,
+            httponly=True, 
+            secure=True,  
+            samesite="None",
+            domain=urlparse(settings.HOST).hostname,  
+            path="/",
+            max_age=24*60*60
+        )
+
+        return res
+    
+    
+    return HttpResponse("Unautorized",status=401)
+
+@csrf_exempt
+def signup_view(request):
+    if request.method != "POST":
+        return HttpResponse("Method not allowed",status=500)
+    
+    username = request.POST.get("username")
+    email = request.POST.get("email")
+    password = request.POST.get("password")
+
+    if password is None:
+        return HttpResponse("Not enough data",status=400)
+    
+    if username is None:
+        user = User.objects.create_user(email=email,password=password)
+
+    if email is None:
+        pass 
+
+    if email is None and username is None:
+        return HttpResponse("Not enough data",status=400)
+    
+
+
+
+@csrf_exempt
+def logout_view(request):
+    response = HttpResponseRedirect(settings.FRONTEND_URL)
+    response.set_cookie(
+        key="access_token",
+        value="",
+        httponly=True,
+        secure=True,
+        samesite="None",
+        path="/",
+        expires="Thu, 01 Jan 1970 00:00:00 GMT",
+        max_age=0
+    )
+    return response

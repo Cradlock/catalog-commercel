@@ -4,8 +4,29 @@ from django.shortcuts import render
 from custom_auth.models import *
 from django.db.models import F,Q
 from django.utils.timezone import now
+from rest_framework import generics
+from custom_auth.s import *
+from custom_auth.models import *
+from custom_auth.lib import is_authenticate,is_admin
+from custom_auth.models import Info
+from custom_auth.s import Info_s
 
 
+
+
+
+
+
+
+def info_get(request):
+    if is_admin(request):
+        infos = Info.objects.all()
+
+        serializer = Info_s(infos,many=True)
+
+        return JsonResponse(serializer.data,safe=False,status=200) 
+    else:
+        return JsonResponse({"error":"Foribdden"},status=403) 
 
 def refresh_products(request):
     if request.method != "GET":
@@ -55,7 +76,7 @@ def refresh_events(request):
             q |= Q(brand__in=event.brands.all())
         if not q:
             continue
-        
+
         products = Product.objects.filter(q)
         products.update(discount=event.discount_precent)
 
@@ -69,41 +90,14 @@ def refresh_events(request):
 
 
 
+# Events
 
+class EventListView(generics.ListAPIView):
+    serializer_class = Event_s
+    queryset = Event.objects.all()
 
-# add events + images
-
-def addEventView(request):
-
-    if request.method != "POST":
-        return JsonResponse({"error":"Method not allowed"},status=405)
-    
-    if request.user.is_authenticated and request.user.is_staff:
-        images = request.FILES.getlist("images")
-        title = request.POST.get("title")
-        desc = request.POST.get("desc")
-        date_start = request.POST.get("date_start")
-        date_end = request.POST.get("date_end")
-
-        brands = request.POST.get("brands")
-        categories = request.POST.get("categories")
-
-
-        saved_files = []
-        
-        for img in images:
-            pass 
-        
-    else:
-        return JsonResponse({"error":"Foribdden"},status=403) 
-    
-
-# add products + images
-
-
-# add category
-
-
-# add brand 
+class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = Event_s
+    queryset = Event.objects.all()
 
 

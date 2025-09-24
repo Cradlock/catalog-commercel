@@ -7,8 +7,15 @@ class Info_s(S.ModelSerializer):
         fields = "__all__"
 
 
+class EventGallery_s(S.ModelSerializer):
+    file = S.ImageField(use_url=True)
+    class Meta:
+        model = GalleryEvent
+        fields = ["file",]
 
+        
 class Event_s(S.ModelSerializer):
+    gallery = EventGallery_s(many=True, read_only=True)
 
     class Meta:
         model = Event

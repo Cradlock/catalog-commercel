@@ -84,7 +84,6 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     FRONTEND_URL,
-    "https://www.youtube.com"
 ]
 
 TEMPLATES = [

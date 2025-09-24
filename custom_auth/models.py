@@ -17,6 +17,9 @@ class Info(models.Model):
     mbank_numbers = models.JSONField()
     title = models.CharField(max_length=255)
     logo = models.FileField()
+    contact_number = models.CharField(max_length=35,default="")
+    
+
 
 class Event(models.Model):
     is_special = models.BooleanField(default=False)
@@ -40,7 +43,7 @@ class Event(models.Model):
 
 class GalleryEvent(models.Model):
     file = models.ImageField()
-    event_id = models.ForeignKey(Event,on_delete=models.CASCADE)
+    event_id = models.ForeignKey(Event,on_delete=models.CASCADE,related_name="gallery")
 
 
 class Cheque(models.Model):

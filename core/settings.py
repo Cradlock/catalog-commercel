@@ -4,6 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 from datetime import timedelta
+from urllib.parse import urlparse
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -29,12 +30,13 @@ DEBUG = True
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 
-ALLOWED_HOSTS = [
-    os.getenv("HOST")
-]
 
 HOST = os.getenv("HOST")
 # Application definition
+
+ALLOWED_HOSTS = [
+    urlparse(HOST).netloc
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',

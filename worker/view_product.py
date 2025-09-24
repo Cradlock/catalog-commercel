@@ -199,3 +199,53 @@ def deleteProduct(request, id):
 
     return JsonResponse({"message": "Product deleted successfully"}, status=200)
 
+
+
+@csrf_exempt
+def getProduct(request):
+    if not is_admin(request):
+        return HttpResponse("Forbidden", status=403)
+    
+    if request.method != "GET":
+        return HttpResponse("Method not allowed", status=405)
+    
+    try:
+        page = int(request.GET.get("page", 1))  # текущая страница (1-based)
+        page_size = int(request.GET.get("size", 10))  # элементов на страницу
+        if page < 1: page = 1
+        if page_size < 1: page_size = 10
+    except ValueError:
+        page = 1
+        page_size = 10
+
+    # Все объекты Product
+    products_qs = Product.objects.all().order_by("id")
+    total_count = products_qs.count()
+    
+    # Рассчёт границ среза
+    start = (page - 1) * page_size
+    end = start + page_size
+
+    # Сериализация объектов
+    products_page = products_qs[start:end]
+    serialized_products = Product_s(products_page, many=True).data
+
+    # Определяем ссылки на страницы
+    base_url = request.build_absolute_uri(request.path)
+    next_page = page + 1 if end < total_count else None
+    previous_page = page - 1 if start > 0 else None
+
+    # Формируем URL для следующей/предыдущей страницы
+    def build_page_url(p):
+        return f"{base_url}?page={p}&size={page_size}"
+
+    response = {
+        "count": total_count,
+        "next": build_page_url(next_page) if next_page else None,
+        "previous": build_page_url(previous_page) if previous_page else None,
+        "results": serialized_products
+    }
+
+    return JsonResponse(response, safe=False)
+
+

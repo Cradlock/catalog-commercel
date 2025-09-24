@@ -29,7 +29,9 @@ DEBUG = True
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    os.getenv("HOST")
+]
 
 HOST = os.getenv("HOST")
 # Application definition

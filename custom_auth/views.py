@@ -217,6 +217,7 @@ def logout_view(request):
         secure=True,
         samesite="None",
         path="/",
+        domain=urlparse(settings.HOST).hostname,
         expires="Thu, 01 Jan 1970 00:00:00 GMT",
         max_age=0
     )

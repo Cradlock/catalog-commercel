@@ -1,6 +1,13 @@
 from django.urls import path
 from .views import *
 from .view_product import *
+from .view_info import *
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+
+router.register(r"category", CategoryViewSet,basename="category")
+router.register(r"brands", BrandViewSet,basename="brands")
 
 urlpatterns = [
     path("refresh/products/",refresh_products),
@@ -19,5 +26,7 @@ urlpatterns = [
     path("edit/product/<int:id>",editProduct)
 
 ]
+
+urlpatterns += router.urls
 
 

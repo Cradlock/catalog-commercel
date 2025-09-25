@@ -6,13 +6,13 @@ from .models import *
 class Category_s(S.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["pk","title"]
+        fields = "__all__"
 
 
 class Brand_s(S.ModelSerializer):
     class Meta:
         model = Brand
-        fields = ["pk","title"]
+        fields = "__all__"
 
 
 class Product_s(S.ModelSerializer):

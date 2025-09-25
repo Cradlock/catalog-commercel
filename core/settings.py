@@ -35,7 +35,8 @@ HOST = os.getenv("HOST")
 # Application definition
 
 ALLOWED_HOSTS = [
-    urlparse(HOST).netloc
+    
+    # urlparse(HOST).netloc
 ]
 
 INSTALLED_APPS = [

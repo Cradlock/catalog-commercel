@@ -54,7 +54,7 @@ def addProduct(request):
     for i in images_gallery:
         Gallery.objects.create(file=i,product=product)
 
-    return HttpResponse("ok",status=200)
+    return JsonResponse(Product_s(product).data,status=200)
     
 
 @csrf_exempt

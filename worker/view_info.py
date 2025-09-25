@@ -26,5 +26,5 @@ class CategoryViewSet(mixins.ListModelMixin,mixins.CreateModelMixin,mixins.Updat
 
 class BrandViewSet(mixins.ListModelMixin,mixins.CreateModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,viewsets.GenericViewSet):
     queryset = Brand.objects.all()
-    serializer_class = Category_s
+    serializer_class = Brand_s
     permission_classes = [CustomPermClass,]

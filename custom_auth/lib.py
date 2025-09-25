@@ -1,7 +1,7 @@
 import jwt
 from django.conf import settings
 from django.contrib.auth import get_user_model
-
+from rest_framework.permissions import BasePermission 
 User = get_user_model()
 
 
@@ -42,3 +42,10 @@ def is_admin(request) -> bool:
 
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, User.DoesNotExist):
         return False
+    
+class CustomPermClass(BasePermission):
+    def has_permission(self, request, view):
+        return is_admin(request)
+
+    def has_object_permission(self, request, view, obj):
+        return is_admin(request)

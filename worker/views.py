@@ -5,28 +5,35 @@ from custom_auth.models import *
 from django.db.models import F,Q
 from django.utils.timezone import now
 from rest_framework import generics
+from rest_framework import mixins,viewsets
 from custom_auth.s import *
 from custom_auth.models import *
-from custom_auth.lib import is_authenticate,is_admin
+from custom_auth.lib import is_authenticate,is_admin,CustomPermClass
 from custom_auth.models import Info
 from custom_auth.s import Info_s
+from rest_framework.response import Response
+
+
+class LastObjectRetrieveAPIView(generics.GenericAPIView):
+    
+    queryset = Info.objects.all()
+    serializer_class = Info_s
+    permission_classes = [CustomPermClass,]
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_queryset().order_by('-id').first()  # Последний объект по id
+        if not obj:
+            return Response({"detail": "Not found"}, status=404)
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data)
 
 
 
+class info_get(LastObjectRetrieveAPIView):
+    queryset = Info.objects.all()
+    serializer_class = Info_s
+    permission_classes = [CustomPermClass,]
 
-
-
-
-
-def info_get(request):
-    if is_admin(request):
-        infos = Info.objects.all()
-
-        serializer = Info_s(infos,many=True)
-
-        return JsonResponse(serializer.data,safe=False,status=200) 
-    else:
-        return JsonResponse({"error":"Foribdden"},status=403) 
 
 def refresh_products(request):
     if request.method != "GET":

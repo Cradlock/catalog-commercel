@@ -12,7 +12,7 @@ router.register(r"brands", BrandViewSet,basename="brands")
 urlpatterns = [
     path("refresh/products/",refresh_products),
     path("refresh/event/",refresh_events),
-    path("getInfo/",info_get),
+    path("getInfo/",info_get.as_view()),
 
     path("events/",EventListView.as_view()),   
     path("events/<int:pk>",EventDetailView.as_view()),   

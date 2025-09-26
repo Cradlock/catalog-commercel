@@ -132,7 +132,6 @@ class GoogleCallbackView(APIView):
             httponly=True, 
             secure=True,  
             samesite="None",
-            domain=urlparse(settings.HOST).hostname ,     # привязка к домену бэка
             path="/",
             max_age=24*60*60
         )
@@ -176,7 +175,6 @@ def login_view(request):
             httponly=True, 
             secure=True,  
             samesite="None",
-            domain=urlparse(settings.HOST).hostname,  
             path="/",
             max_age=24*60*60
         )
@@ -217,7 +215,6 @@ def logout_view(request):
         secure=True,
         samesite="None",
         path="/",
-        domain=urlparse(settings.HOST).hostname,
         expires="Thu, 01 Jan 1970 00:00:00 GMT",
         max_age=0
     )

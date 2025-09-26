@@ -81,6 +81,10 @@ def info_edit(request):
             info.logo.delete(save=False)
         info.logo = logo
 
+    cashier_numbers = request.POST.getlist("cashier_numbers") 
+    if cashier_numbers:
+       info.cashier_numbers = cashier_numbers
+
     info.save()
 
 

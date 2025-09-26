@@ -85,7 +85,7 @@ def info_edit(request):
 
 
 
-    return JsonResponse({"data": Info_s(info).data}, status=200)
+    return JsonResponse({"data": Info_s(info,context={'request': request}).data}, status=200)
 
 
 

@@ -132,6 +132,7 @@ class GoogleCallbackView(APIView):
             httponly=True, 
             secure=True,  
             samesite="None",
+            domain=urlparse(settings.HOST).hostname ,     # привязка к домену бэка
             path="/",
             max_age=24*60*60
         )
@@ -175,6 +176,7 @@ def login_view(request):
             httponly=True, 
             secure=True,  
             samesite="None",
+            domain=urlparse(settings.HOST).hostname,  
             path="/",
             max_age=24*60*60
         )
@@ -215,6 +217,7 @@ def logout_view(request):
         secure=True,
         samesite="None",
         path="/",
+        domain=urlparse(settings.HOST).hostname,
         expires="Thu, 01 Jan 1970 00:00:00 GMT",
         max_age=0
     )
@@ -239,6 +242,8 @@ class BucketViewList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
 
+
+
 class BucketViewDetail(APIView):
     permission_classes = [CustomPermDoubleClass,]
 
@@ -256,4 +261,3 @@ class BucketViewDetail(APIView):
         item = get_object_or_404(user.cart_items, pk=pk)
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-

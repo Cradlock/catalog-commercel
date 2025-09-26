@@ -11,7 +11,7 @@ class EventGallery_s(S.ModelSerializer):
     file = S.ImageField(use_url=True)
     class Meta:
         model = GalleryEvent
-        fields = ["file",]
+        fields = ["file","pk"]
 
         
 class Event_s(S.ModelSerializer):
@@ -27,3 +27,13 @@ class Cheque_s(S.ModelSerializer):
     class Meta:
         model = Cheque
         fields = "__all__"
+
+
+
+
+class OrderItem_S(S.ModelSerializer):
+    product_name = S.CharField(source='product.name', read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product', 'product_name', 'count']

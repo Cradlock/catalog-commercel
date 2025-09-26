@@ -8,7 +8,11 @@ urlpatterns = [
     path("logout/",logout_view),  
     # google login
     path("google/login/", GoogleRedirectView.as_view()),
-    path("google/callback/", GoogleCallbackView.as_view())
+    path("google/callback/", GoogleCallbackView.as_view()),
+
+    # path("user/",),
+    path("bucket/",BucketViewList.as_view()),
+    path("bucket/<int:pk>",BucketViewDetail.as_view()),
 
 ]
 

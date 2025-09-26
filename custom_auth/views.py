@@ -12,10 +12,13 @@ import datetime
 import jwt
 import requests
 from .models import *
-from .lib import is_authenticate
+from .lib import CustomPermDoubleClass,get_id
 from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlparse
+from .s import *
+from django.shortcuts import get_object_or_404
+
 User = Profile
 
 
@@ -204,9 +207,6 @@ def signup_view(request):
     if email is None and username is None:
         return HttpResponse("Not enough data",status=400)
     
-
-
-
 @csrf_exempt
 def logout_view(request):
     response = HttpResponseRedirect(settings.FRONTEND_URL)
@@ -222,3 +222,41 @@ def logout_view(request):
         max_age=0
     )
     return response
+
+
+
+class BucketViewList(APIView):
+    permission_classes = [CustomPermDoubleClass,]
+
+    def get(self,request):
+        user = get_object_or_404(Profile,pk=get_id(request))
+        items = user.cart_items.all()
+        serializer = OrderItem_S(items, many=True)
+        return Response(serializer.data) 
+
+    def post(self,request):
+        user = get_object_or_404(Profile,pk=get_id(request))
+        serializer = OrderItem_S(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=user) 
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+
+class BucketViewDetail(APIView):
+    permission_classes = [CustomPermDoubleClass,]
+
+    def put(self, request, pk):
+        user = get_object_or_404(Profile,pk=get_id(request))
+        item = get_object_or_404(user.cart_items, pk=pk)
+        serializer = OrderItem_S(item, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        user = get_object_or_404(Profile,pk=get_id(request))
+        item = get_object_or_404(user.cart_items, pk=pk)
+        item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+

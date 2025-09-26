@@ -4,23 +4,33 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 
 
+
+
 class Profile(AbstractUser):
     email = models.EmailField(unique=True)
-    bucket = models.ManyToManyField(Product)
+
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
+class OrderItem(models.Model):
+    count = models.PositiveIntegerField(default=1)
+    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    user = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name='cart_items')
 
 class Info(models.Model):
     cashier_numbers = models.JSONField()
-    mbank_numbers = models.JSONField()
     title = models.CharField(max_length=255)
     logo = models.FileField()
     contact_number = models.CharField(max_length=35,default="")
+    telegramm = models.CharField(max_length=200,blank=True)
+    instagramm = models.CharField(max_length=200,blank=True)
+    whatsapp = models.CharField(max_length=200,blank=True)
+    gmail = models.EmailField(blank=True,null=True,default=None)
     
 
 
+    
 class Event(models.Model):
     is_special = models.BooleanField(default=False)
     type_special = models.CharField(null=True,blank=True,max_length=25)

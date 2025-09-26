@@ -13,10 +13,13 @@ urlpatterns = [
     path("refresh/products/",refresh_products),
     path("refresh/event/",refresh_events),
     path("getInfo/",info_get.as_view()),
+    path("setInfo/",info_edit),
 
     path("events/",EventListView.as_view()),   
     path("events/<int:pk>",EventDetailView.as_view()),   
-
+    path("add/event/",addEvent),
+    path("edit/event/<int:id>/",editEvent),
+    path("delete/event/<int:id>/",deleteEvent),
 
     path("products/",ProductsView.as_view()),
     path("products/<int:pk>",ProductDetail.as_view()),

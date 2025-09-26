@@ -53,7 +53,7 @@ def info_edit(request):
         "whatsapp": "",
         "gmail": "",
         "contact_number": "",
-        "cashier_numbers": request.POST.getlist("cashier_number",[]),
+        "cashier_numbers": request.POST.getlist("cashier_numbers",[]),
     })
 
     title = request.POST.get("title")

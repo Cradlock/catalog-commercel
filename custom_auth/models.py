@@ -8,7 +8,8 @@ from django.contrib.auth.models import AbstractUser
 
 class Profile(AbstractUser):
     email = models.EmailField(unique=True)
-
+    is_cashier = models.BooleanField(default=False)
+    phone_number = models.CharField(max_length=30,default="",blank=True,null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -57,8 +58,11 @@ class GalleryEvent(models.Model):
 
 
 class Cheque(models.Model):
-    date = models.DateTimeField(auto_now_add=True)
-    product_id = models.ForeignKey(Product,on_delete=models.SET_NULL,null=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    products = models.JSONField(default=[])
     price = models.PositiveIntegerField()
-    client_id = models.ForeignKey(Profile,on_delete=models.SET_NULL,null=True)
+    client = models.ForeignKey(Profile,on_delete=models.SET_NULL,null=True)
+
+
+
 

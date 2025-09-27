@@ -180,7 +180,7 @@ def addEvent(request):
     is_special = request.POST.get("is_special") == "true"
     type_special = request.POST.get("type_special")
 
-    date_start = request.POST.get("date_start")  # опционально, можно парсить
+    date_start = request.POST.get("date_start")     
     date_end = request.POST.get("date_end")
 
     # Преобразуем ManyToMany: бренды и категории
@@ -306,3 +306,18 @@ def deleteEvent(request, id):
     product.delete()
 
     return JsonResponse({"message": "Product deleted successfully"}, status=200)
+
+
+
+
+
+
+
+
+
+# cashier
+
+@csrf_exempt
+def set_order(request):
+    pass 
+

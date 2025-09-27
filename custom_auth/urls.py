@@ -17,7 +17,3 @@ urlpatterns = [
 ]
 
 
-
-# get-busket/
-# add-busket/ 
-# del-busket/

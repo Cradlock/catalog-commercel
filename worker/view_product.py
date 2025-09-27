@@ -2,10 +2,13 @@ from custom_auth.models import *
 from rest_framework.generics import RetrieveAPIView,ListAPIView
 from catalog.pag import *
 from catalog.s import *
-from custom_auth.lib import is_admin
+from custom_auth.lib import is_admin,CustomPermClass
 from django.http import HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
 import json
+from rest_framework.response import Response
+from django.core.paginator import Paginator
 
 class ProductsView(ListAPIView):
     queryset = Product.objects.all()
@@ -28,7 +31,7 @@ def addProduct(request):
 
     title = request.POST.get("title")
     desc = json.loads(request.POST.get("desc"))
-    discount = float(request.POST.get("discount"))
+    discount = float(request.POST.get("discount",0))
     count = request.POST.get("count")
     category_id = int(request.POST.get("category"))
     brand_id = int(request.POST.get("brand"))
@@ -85,7 +88,8 @@ def editProduct(request, id):
         try:
             product.discount = float(discount)
         except ValueError:
-            return JsonResponse({"error": "Invalid discount"}, status=400)
+            pass 
+
 
     count = request.POST.get("count")
     if count is not None:
@@ -175,27 +179,30 @@ def edit_product_mass(request):
 
 
 @csrf_exempt
-def deleteProduct(request, id):
+def deleteProduct(request):
     if not is_admin(request):
         return HttpResponse("Forbidden", status=403)
     
-    if request.method != "GET":
+    if request.method != "DELETE":
         return HttpResponse("Method not allowed", status=405)
 
-    product = Product.objects.filter(id=id).first()
-    if not product:
+    indices = request.GET.getlist("indices")
+    
+    product = Product.objects.filter(id__in=indices)
+    if len(product) <= 0:
         return JsonResponse({"error": "Product not found"}, status=404)
-
-    galleries = Gallery.objects.filter(product=product)
-    for g in galleries:
+    
+    for pr in product:
+      galleries = Gallery.objects.filter(product=pr)
+      for g in galleries:
         if g.file:  
             g.file.delete(save=False)
-    galleries.delete()
+      galleries.delete()
 
-    if product.cover:
-        product.cover.delete(save=False)
+      if pr.cover:
+        pr.cover.delete(save=False)
 
-    product.delete()
+      pr.delete()
 
     return JsonResponse({"message": "Product deleted successfully"}, status=200)
 
@@ -248,4 +255,94 @@ def getProduct(request):
 
     return JsonResponse(response, safe=False)
 
+
+
+
+
+class FiilterProduct(APIView):
+    permission_classes = [CustomPermClass,]
+
+    def get(self,request):
+        qs = Product.objects.all()
+        
+        page_number = request.GET.get("page", 1)  
+        page_size = request.GET.get("size", 2)
+        
+        try:
+            page_number = int(page_number)
+            page_size = int(page_size)
+        except ValueError:
+            page_number = 1
+            page_size = 2
+    
+        paginator = Paginator(qs, page_size)
+        page_obj = paginator.get_page(page_number)
+    
+        serializer = Product_s(page_obj, many=True)
+    
+        return Response({
+            "results": serializer.data,
+            "count": paginator.count,
+            "num_pages": paginator.num_pages,
+            "current_page": page_number
+        })
+
+    
+    def post(self, request):
+        data = request.data
+        qs = Product.objects.all()
+   
+
+        title = data.get("title")
+        if title:
+            qs = qs.filter(title__icontains=title)
+
+        min_price = data.get("minPrice")
+        max_price = data.get("maxPrice")
+        if min_price is not None:
+            qs = qs.filter(price__gte=min_price)
+        if max_price is not None:
+            qs = qs.filter(price__lte=max_price)
+
+        discount = data.get("discount")
+        if discount is not None:
+            qs = qs.filter(discount__lte=discount)
+
+        min_count = data.get("minCount")
+        max_count = data.get("maxCount")    
+        if min_count is not None:
+            qs = qs.filter(count__gte=min_count)
+        if max_count is not None:
+            qs = qs.filter(count__lte=max_count)
+
+        categories = data.get("category")
+        if categories:
+            qs = qs.filter(category_id__in=categories)
+
+        brands = data.get("brand")
+        if brands:
+            qs = qs.filter(brand_id__in=brands)
+
+        min_date = data.get("minDate")
+        max_date = data.get("maxDate")
+        if min_date:
+            qs = qs.filter(date__gte=min_date)
+        if max_date:
+            qs = qs.filter(date__lte=max_date)
+
+        page_number = data.get("page", 1)
+        page_size = data.get("size", 20)
+        paginator = Paginator(qs, page_size)
+        page_obj = paginator.get_page(page_number)
+
+        serializer = Product_s(page_obj, many=True)
+
+        return Response({
+            "results": serializer.data,
+            "count": paginator.count,
+            "num_pages": paginator.num_pages,
+            "current_page": page_number
+        })
+
+    
 

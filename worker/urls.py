@@ -17,6 +17,7 @@ urlpatterns = [
 
     path("events/",EventListView.as_view()),   
     path("events/<int:pk>",EventDetailView.as_view()),   
+    
     path("add/event/",addEvent),
     path("edit/event/<int:id>/",editEvent),
     path("delete/event/<int:id>/",deleteEvent),
@@ -26,7 +27,9 @@ urlpatterns = [
 
 
     path("add/product/",addProduct),
-    path("edit/product/<int:id>",editProduct)
+    path("edit/product/<int:id>",editProduct),
+    path("delete/product/",deleteProduct),
+    path("filter/products/",FiilterProduct.as_view())
 
 ]
 

@@ -78,3 +78,14 @@ class CustomPermDoubleClass(BasePermission):
         return is_authenticate(request)
 
 
+
+class CustomPermTriClass(BasePermission):
+    def has_permission(self, request, view):
+        if request.method == "GET":
+            return True
+        return is_admin(request)
+
+    def has_object_permission(self, request, view, obj):
+        if request.method == "GET":
+            return True
+        return is_admin(request)

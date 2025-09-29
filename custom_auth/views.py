@@ -261,3 +261,19 @@ class BucketViewDetail(APIView):
         item = get_object_or_404(user.cart_items, pk=pk)
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
+
+
+
+def getInfo(request):
+    obj = Info.objects.last()
+
+    if obj is None:
+        return JsonResponse({"data":"Not Info obj"},status=500)
+    
+    return JsonResponse(Info_s(obj).data,status=200)
+

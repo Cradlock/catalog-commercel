@@ -275,5 +275,5 @@ def getInfo(request):
     if obj is None:
         return JsonResponse({"data":"Not Info obj"},status=500)
     
-    return JsonResponse(Info_s(obj,context=request).data,status=200)
+    return JsonResponse(Info_s(obj,context={"request":request}).data,status=200)
 

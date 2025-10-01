@@ -2,7 +2,7 @@ from django.db import models
 from catalog.models import *
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
-
+import uuid
 
 
 
@@ -51,13 +51,19 @@ class Event(models.Model):
     def __str__(self):
         return self.title
 
-
 class GalleryEvent(models.Model):
     file = models.ImageField()
     event_id = models.ForeignKey(Event,on_delete=models.CASCADE,related_name="gallery")
 
 
+class Order(models.Model):
+    bucket = models.ManyToManyField(OrderItem)
+    created_date = models.DateTimeField()
+    user = models.ForeignKey(Profile,on_delete=models.CASCADE)
+
+
 class Cheque(models.Model):
+    id = models.UUIDField(default=uuid.uuid4)
     created_date = models.DateTimeField(auto_now_add=True)
     products = models.JSONField(default=[])
     price = models.PositiveIntegerField()

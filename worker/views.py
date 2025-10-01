@@ -8,13 +8,15 @@ from rest_framework import generics
 from rest_framework import mixins,viewsets
 from custom_auth.s import *
 from custom_auth.models import *
-from custom_auth.lib import is_authenticate,is_admin,CustomPermClass
+from custom_auth.lib import is_authenticate,is_admin,CustomPermClass,get_id
 from custom_auth.models import Info
 from custom_auth.s import Info_s
 from rest_framework.response import Response
 from django.http import HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 import json
+
 
 class LastObjectRetrieveAPIView(generics.GenericAPIView):
     
@@ -30,12 +32,10 @@ class LastObjectRetrieveAPIView(generics.GenericAPIView):
         return Response(serializer.data)
 
 
-
 class info_get(LastObjectRetrieveAPIView):
     queryset = Info.objects.all()
     serializer_class = Info_s
     permission_classes = [CustomPermClass,]
-
 
 @csrf_exempt
 def info_edit(request):
@@ -315,9 +315,90 @@ def deleteEvent(request, id):
 
 
 
+
+
+
+
 # cashier
+@csrf_exempt
+def check_cheque(request,uuid):
+    obj = Cheque.objects.filter(id=uuid).first()
+    if not obj:
+        return HttpResponse("Not check",status=400)
+    
+    return JsonResponse(Cheque_s(obj).data,status=200)
+    
+
+
+
+
+@csrf_exempt
+def create_order(request):
+    user = is_authenticate(request)
+    if not user:
+        return HttpResponse("Forbidden",status=403)
+    
+    if request.method != "POST":
+        return HttpResponse("Method not alowed",status=405)
+    
+    obj = Order.objects.create(user=user,created_date=timezone.now())
+    order_items = OrderItem.objects.filter(user=user)
+    
+    if not order_items.exists():
+        return HttpResponse("No items in bucket", status=400)  
+    
+    obj.bucket.set(order_items)
+    
+
+    return HttpResponse("Ok",status=200)
+
+
 
 @csrf_exempt
 def set_order(request):
-    pass 
+    if not is_admin(request):
+        return HttpResponse("Foribbden",status=403)
+
+    if request.method != "POST":
+        return HttpResponse("Method not alowed",status=400) 
+
+
+    id_order = request.POST.get("order")
+    if id_order is None:
+        return HttpResponse("Data not enough",status=400)
+    
+    order = Order.objects.filter(pk=id_order).first()
+    if not order:
+        return HttpResponse("Not order",status=400)
+    
+    
+    items = order.bucket.all()
+    if not items.exists():
+        return HttpResponse("Order has no items", status=400)
+
+
+    products_data = []
+    total_sum = 0
+    for item in items:
+        product_info = {
+            "id":item.product.id,
+            "title":item.product.title,
+            "count":item.count,
+            "price":item.count * item.product.price
+        }
+
+        products_data.append(product_info)
+        total_sum += product_info["price"]
+    
+    cheque = Cheque.objects.create(
+        products=products_data,
+        price=total_sum,
+        client=order.user
+    )
+
+    order.delete()
+
+    return JsonResponse(Cheque_s(Cheque).data,status=200)
+
+
 

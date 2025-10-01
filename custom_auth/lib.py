@@ -18,7 +18,7 @@ def is_authenticate(request) -> bool:
             return False
         
         user = User.objects.get(id=user_id)
-        return True
+        return user
 
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, User.DoesNotExist):
         return False
@@ -37,7 +37,7 @@ def is_admin(request) -> bool:
         
         user = User.objects.get(id=user_id)
         if user.is_staff:
-            return True
+            return user
         return False
 
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, User.DoesNotExist):

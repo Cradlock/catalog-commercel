@@ -29,7 +29,11 @@ urlpatterns = [
     path("add/product/",addProduct),
     path("edit/product/<int:id>",editProduct),
     path("delete/product/",deleteProduct),
-    path("filter/products/",FiilterProduct.as_view())
+    path("filter/products/",FiilterProduct.as_view()),
+
+    path("check/cheque/<uuid:uuid>",check_cheque),
+    path("create/order/",create_order),
+    path("set/order/",set_order)
 
 ]
 

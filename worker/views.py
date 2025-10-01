@@ -313,12 +313,6 @@ def deleteEvent(request, id):
 
 
 
-
-
-
-
-
-
 # cashier
 @csrf_exempt
 def check_cheque(request,uuid):
@@ -341,16 +335,26 @@ def create_order(request):
     if request.method != "POST":
         return HttpResponse("Method not alowed",status=405)
     
-    obj = Order.objects.create(user=user,created_date=timezone.now())
     order_items = OrderItem.objects.filter(user=user)
-    
     if not order_items.exists():
         return HttpResponse("No items in bucket", status=400)  
     
-    obj.bucket.set(order_items)
-    
+    product_list = []
+    summa = 0
+    for item in order_items:
+        product_info = {
+            "id":item.product.id,
+            "title":item.product.title,
+            "price":item.count * item.product.price,
+            "count": item.count 
+        }
+        product_list.append(product_info)
+        summa += product_info["price"]
 
-    return HttpResponse("Ok",status=200)
+    obj = Order.objects.create(user=user,created_date=timezone.now(),products=product_list,total_price=summa)
+    order_items.delete()
+
+    return JsonResponse(Order_s(obj).data,status=200)
 
 
 
@@ -371,34 +375,14 @@ def set_order(request):
     if not order:
         return HttpResponse("Not order",status=400)
     
-    
-    items = order.bucket.all()
-    if not items.exists():
-        return HttpResponse("Order has no items", status=400)
 
+    obj = Cheque(created_date=timezone.now(),products=order.products,price=order.total_price,client=order.user)
 
-    products_data = []
-    total_sum = 0
-    for item in items:
-        product_info = {
-            "id":item.product.id,
-            "title":item.product.title,
-            "count":item.count,
-            "price":item.count * item.product.price
-        }
-
-        products_data.append(product_info)
-        total_sum += product_info["price"]
-    
-    cheque = Cheque.objects.create(
-        products=products_data,
-        price=total_sum,
-        client=order.user
-    )
 
     order.delete()
 
-    return JsonResponse(Cheque_s(Cheque).data,status=200)
+    return JsonResponse(Cheque_s(obj).data,status=200)
+
 
 
 

@@ -36,7 +36,7 @@ class Event(models.Model):
     is_special = models.BooleanField(default=False)
     type_special = models.CharField(null=True,blank=True,max_length=25)
 
-    date_start = models.DateTimeField(auto_now_add=True)
+    date_start = models.DateTimeField()
     date_end = models.DateTimeField(blank=True,null=True)
     
     title = models.CharField(max_length=255)
@@ -57,13 +57,14 @@ class GalleryEvent(models.Model):
 
 
 class Order(models.Model):
-    bucket = models.ManyToManyField(OrderItem)
     created_date = models.DateTimeField()
+    products = models.JSONField(default=[])
+    total_price = models.PositiveIntegerField(default=0)
     user = models.ForeignKey(Profile,on_delete=models.CASCADE)
 
 
 class Cheque(models.Model):
-    id = models.UUIDField(default=uuid.uuid4)
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     created_date = models.DateTimeField(auto_now_add=True)
     products = models.JSONField(default=[])
     price = models.PositiveIntegerField()

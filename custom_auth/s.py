@@ -37,3 +37,10 @@ class OrderItem_S(S.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ['id', 'product', 'product_name', 'count']
+
+
+class Order_s(S.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = "__all__"

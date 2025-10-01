@@ -113,7 +113,7 @@ def editProduct(request, id):
         product.category = category
 
     brand_id = request.POST.get("brand")
-    if brand_id is not None or brand_id.is_digit():
+    if brand_id is not None and brand_id.is_digit():
         brand = Brand.objects.filter(id=int(brand_id)).first()
         product.brand = brand
 

@@ -137,7 +137,9 @@ def editProduct(request, id):
     if images_count != 0:
         for key,value in request.FILES.items():
             if key == "-1":
-                Gallery.objects.create(product=product,file=value) 
+                Gallery.objects.create(product=product,file=value)
+            elif key == "cover":
+                continue 
             elif int(key) > 0:
                 gallery = Gallery.objects.get(pk=int(key))
                 gallery.file = value

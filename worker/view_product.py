@@ -107,13 +107,13 @@ def editProduct(request, id):
         except ValueError:
             return JsonResponse({"error": "Invalid price"}, status=400)
 
-    category_id = request.POST.get("category")
-    if category_id is not None:
+    category_id = request.POST.get("category",None)
+    if category_id and category_id.is_digit():
         category = Category.objects.filter(id=int(category_id)).first()
         product.category = category
 
-    brand_id = request.POST.get("brand")
-    if brand_id is not None and brand_id.is_digit():
+    brand_id = request.POST.get("brand",None)
+    if brand_id and brand_id.is_digit():
         brand = Brand.objects.filter(id=int(brand_id)).first()
         product.brand = brand
 

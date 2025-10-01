@@ -12,7 +12,7 @@ import datetime
 import jwt
 import requests
 from .models import *
-from .lib import CustomPermDoubleClass,get_id
+from .lib import CustomPermDoubleClass,get_id,is_authenticate
 from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlparse
@@ -266,6 +266,13 @@ class BucketViewDetail(APIView):
 
 
 
+
+@csrf_exempt
+def getUser(request):
+    user = is_authenticate(request)
+    if not user:
+        return HttpResponse("Forbidden",status=403)
+    return JsonResponse(Profile_s(user).data,status=200)
 
 
 

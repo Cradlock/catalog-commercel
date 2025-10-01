@@ -312,7 +312,6 @@ def deleteEvent(request, id):
 
 
 
-
 # cashier
 @csrf_exempt
 def check_cheque(request,uuid):

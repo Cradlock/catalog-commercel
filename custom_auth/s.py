@@ -29,8 +29,6 @@ class Cheque_s(S.ModelSerializer):
         fields = "__all__"
 
 
-
-
 class OrderItem_S(S.ModelSerializer):
     product_name = S.CharField(source='product.name', read_only=True)
 
@@ -44,3 +42,10 @@ class Order_s(S.ModelSerializer):
     class Meta:
         model = Order
         fields = "__all__"
+
+
+class Profile_s(S.ModelSerializer): 
+    bucket = OrderItem_S(   source='cart_items',many=True,read_only=True)
+    class Meta:
+        model = Profile
+        fields = [ "username","bucket" ]

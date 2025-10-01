@@ -67,8 +67,10 @@ def editProduct(request, id):
     
     if request.method != "POST":
         return HttpResponse("Method not allowed", status=405)
-
+    
+    
     product = Product.objects.filter(id=id).first()
+    
     if not product:
         return JsonResponse({"error": "Product not found"}, status=404)
 
@@ -111,7 +113,7 @@ def editProduct(request, id):
         product.category = category
 
     brand_id = request.POST.get("brand")
-    if brand_id is not None:
+    if brand_id is not None or brand_id.is_digit():
         brand = Brand.objects.filter(id=int(brand_id)).first()
         product.brand = brand
 
@@ -137,7 +139,7 @@ def editProduct(request, id):
     if images_count != 0:
         for key,value in request.FILES.items():
             if key == "-1":
-                Gallery.objects.create(product=product,file=value)
+                Gallery.objects.create(product=product,file=value)  
             elif key == "cover":
                 continue 
             elif int(key) > 0:

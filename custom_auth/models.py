@@ -58,7 +58,7 @@ class GalleryEvent(models.Model):
 
 class Order(models.Model):
     created_date = models.DateTimeField()
-    products = models.JSONField(default=[])
+    products = models.JSONField(default=list)
     total_price = models.PositiveIntegerField(default=0)
     user = models.ForeignKey(Profile,on_delete=models.CASCADE)
 
@@ -66,7 +66,7 @@ class Order(models.Model):
 class Cheque(models.Model):
     id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     created_date = models.DateTimeField(auto_now_add=True)
-    products = models.JSONField(default=[])
+    products = models.JSONField(default=list)
     price = models.PositiveIntegerField()
     client = models.ForeignKey(Profile,on_delete=models.SET_NULL,null=True)
 

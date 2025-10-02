@@ -204,7 +204,7 @@ def signup_view(request):
         return HttpResponse("Not enough data",status=403)
     
     if email is None:
-        return HttpResponse("Not enough data",status=400)
+        return HttpResponse("Not enough data",status=403)
 
     
     user = User.objects.create_user(username=username,email=email,password=password,is_active=False)

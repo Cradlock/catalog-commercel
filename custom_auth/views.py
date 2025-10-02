@@ -209,7 +209,7 @@ def signup_view(request):
     
     user = User.objects.create_user(username=username,email=email,password=password,is_active=False)
     
-    uidb64 = urlsafe_base64_decode()
+    uidb64 = urlsafe_base64_decode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
     verify_link = f"{settings.HOST}/accounts/google/verify/{uidb64}/{token}/"
 

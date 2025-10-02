@@ -215,7 +215,7 @@ def signup_view(request):
     token = default_token_generator.make_token(user)
     verify_link = f"{settings.HOST}/accounts/google/verify/{uidb64}/{token}/"
 
-    return HttpResponse(verify_link,status=200)
+    return JsonResponse({"data":verify_link},status=200)
 
 
     

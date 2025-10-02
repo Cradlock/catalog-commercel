@@ -198,14 +198,16 @@ def signup_view(request):
     password = request.POST.get("password")
 
     if password is None:
-        return HttpResponse("Not enough data",status=403)
+        return JsonResponse({"error": "Данных не хватает"}, status=400)
         
     if email is None and username is None:
-        return HttpResponse("Not enough data",status=403)
+        return JsonResponse({"error": "Данных не хватает"}, status=400)
     
     if email is None:
-        return HttpResponse("Not enough data",status=403)
-
+        return JsonResponse({"error": "Данных не хватает"}, status=400)
+    
+    if User.objects.filter(email=email).exists():
+        return JsonResponse({"error": "Email уже занят"}, status=403)
     
     user = User.objects.create_user(username=username,email=email,password=password,is_active=False)
     

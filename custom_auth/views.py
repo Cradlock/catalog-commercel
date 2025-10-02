@@ -198,10 +198,10 @@ def signup_view(request):
     password = request.POST.get("password")
 
     if password is None:
-        return HttpResponse("Not enough data",status=400)
+        return HttpResponse("Not enough data",status=403)
         
     if email is None and username is None:
-        return HttpResponse("Not enough data",status=400)
+        return HttpResponse("Not enough data",status=403)
     
     if email is None:
         return HttpResponse("Not enough data",status=400)

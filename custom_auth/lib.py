@@ -2,8 +2,17 @@ import jwt
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import BasePermission 
+from django.core.mail import send_mail
+from django.conf import settings
 User = get_user_model()
 
+
+def send_email(recipient_list:list):
+    subject = "Тестовое письмо"
+    message = "Привет! Это письмо отправлено через Gmail SMTP."
+    from_email = settings.DEFAULT_FROM_EMAIL
+
+    send_mail(subject, message, from_email, recipient_list)
 
 def is_authenticate(request) -> bool:
     token = request.COOKIES.get("access_token")

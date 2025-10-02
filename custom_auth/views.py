@@ -12,7 +12,7 @@ import datetime
 import jwt
 import requests
 from .models import *
-from .lib import CustomPermDoubleClass,get_id,is_authenticate
+from .lib import CustomPermDoubleClass,get_id,is_authenticate,send_email
 from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlparse
@@ -220,6 +220,8 @@ def signup_view(request):
     uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
     verify_link = f"{settings.HOST}/accounts/google/verify/{uidb64}/{token}/"
+    
+    send_email([email])
 
     return JsonResponse({"data":verify_link},status=200)
 

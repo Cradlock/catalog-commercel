@@ -23,6 +23,11 @@ GOOGLE_SECRET_KEY = os.getenv("GOOGLE_SECRET_KEY")
 GOOGLE_PUBLIC_ID = os.getenv("GOOGLE_PUBLIC_ID")
 
 GOOGLE_OWNER = os.getenv("GOOGLE_OWNER")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_USE_TLC = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

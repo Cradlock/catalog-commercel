@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlparse
 from .s import *
 from django.shortcuts import get_object_or_404
-from django.utils.http import urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 User = Profile
@@ -211,7 +211,7 @@ def signup_view(request):
     
     user = User.objects.create_user(username=username,email=email,password=password,is_active=False)
     
-    uidb64 = urlsafe_base64_decode(force_bytes(user.pk))
+    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
     verify_link = f"{settings.HOST}/accounts/google/verify/{uidb64}/{token}/"
 

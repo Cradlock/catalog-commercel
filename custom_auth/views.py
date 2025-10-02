@@ -237,7 +237,24 @@ def logout_view(request):
 
 class VerifyEmailView(APIView):
     def get(self, request, uidb64, token):
-        pass
+        try:
+            # Декодируем uidb64, чтобы получить ID пользователя
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+        except (User.DoesNotExist, ValueError, TypeError, OverflowError):
+            return Response({"error": "Неверная ссылка"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Проверяем, активен ли пользователь
+        if user.is_active:
+            return Response({"error": "Аккаунт уже подтверждён"}, status=status.HTTP_403_FORBIDDEN)
+
+        # Проверяем токен
+        if default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            return Response({"status": "Аккаунт успешно активирован"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Токен недействителен или просрочен"}, status=status.HTTP_400_BAD_REQUEST)
 class BucketViewList(APIView):
     permission_classes = [CustomPermDoubleClass,]
 

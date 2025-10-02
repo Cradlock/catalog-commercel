@@ -9,10 +9,14 @@ urlpatterns = [
     # google login
     path("google/login/", GoogleRedirectView.as_view()),
     path("google/callback/", GoogleCallbackView.as_view()),
+    path("google/verify/<uidb64>/<token>/",VerifyEmailView.as_view()),  
 
     path("user/",getUser),
     path("bucket/",BucketViewList.as_view()),
     path("bucket/<int:pk>",BucketViewDetail.as_view()),
+
+
+    
 
 ]
 

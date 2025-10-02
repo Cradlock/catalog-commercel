@@ -18,7 +18,9 @@ from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlparse
 from .s import *
 from django.shortcuts import get_object_or_404
-
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
 User = Profile
 
 
@@ -197,15 +199,23 @@ def signup_view(request):
 
     if password is None:
         return HttpResponse("Not enough data",status=400)
-    
-    if username is None:
-        user = User.objects.create_user(email=email,password=password)
-
-    if email is None:
-        pass 
-
+        
     if email is None and username is None:
         return HttpResponse("Not enough data",status=400)
+    
+    if email is None:
+        return HttpResponse("Not enough data",status=400)
+
+    
+    user = User.objects.create_user(username=username,email=email,password=password,is_active=False)
+    
+    uidb64 = urlsafe_base64_decode()
+    token = default_token_generator.make_token(user)
+    verify_link = f"{settings.HOST}/accounts/google/verify/{uidb64}/{token}/"
+
+    return HttpResponse(verify_link,status=200)
+
+
     
 @csrf_exempt
 def logout_view(request):
@@ -223,8 +233,9 @@ def logout_view(request):
     )
     return response
 
-
-
+class VerifyEmailView(APIView):
+    def get(self, request, uidb64, token):
+        pass
 class BucketViewList(APIView):
     permission_classes = [CustomPermDoubleClass,]
 

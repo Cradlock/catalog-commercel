@@ -209,6 +209,12 @@ def signup_view(request):
     if User.objects.filter(email=email).exists():
         return JsonResponse({"error": "Email уже занят"}, status=403)
     
+
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({"error": "Username уже занят"}, status=403)
+    
+
+
     user = User.objects.create_user(username=username,email=email,password=password,is_active=False)
     
     uidb64 = urlsafe_base64_encode(force_bytes(user.pk))

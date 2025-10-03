@@ -300,7 +300,7 @@ class BucketViewDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
+@csrf_exempt
 def reset_password(request):
     if request.method != "POST":
         return JsonResponse({"error":"Method not allowed"},status=503)

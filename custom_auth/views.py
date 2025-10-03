@@ -273,14 +273,28 @@ class BucketViewList(APIView):
         serializer = OrderItem_S(items, many=True)
         return Response(serializer.data) 
 
-    def post(self,request):
-        user = get_object_or_404(Profile,pk=get_id(request))
-        serializer = OrderItem_S(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=user) 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+    def post(self, request):
+        user = get_object_or_404(Profile, pk=get_id(request))
+        product_id = request.data.get('product')  # ожидаем, что приходит id продукта
+        count = int(request.data.get('count', 1))  # количество по умолчанию = 1
 
+        if not product_id:
+            return Response({"error": "product is required"}, status=400)
+
+        # Проверяем, есть ли такой товар в корзине
+        item, created = OrderItem.objects.get_or_create(
+            user=user,
+            product_id=product_id,
+            defaults={'count': count}
+        )
+
+        if not created:
+            # если уже есть, увеличиваем количество
+            item.count += count
+            item.save()
+
+        serializer = OrderItem_S(item, context={'request': request})
+        return Response(serializer.data, status=201)
 class BucketViewDetail(APIView):
     permission_classes = [CustomPermDoubleClass,]
 

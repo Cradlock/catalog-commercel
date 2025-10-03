@@ -2,6 +2,7 @@ from django.contrib.auth.backends import ModelBackend
 from rest_framework.response import Response
 from django.http import HttpResponseRedirect
 from rest_framework.views import APIView
+from django.shortcuts import render
 from rest_framework import status
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
@@ -324,19 +325,47 @@ def reset_password(request):
 
 
 class VerifyResetPassword(APIView):
-    def get(self,req,uidb64,token):
+    template_name = "reset.html"
+
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return HttpResponse("Неверная или устаревшая ссылка", status=400)
+
+        if default_token_generator.check_token(user, token):
+            return render(request, self.template_name, {
+                "uidb64": uidb64,
+                "token": token
+            })
+        else:
+            return HttpResponse("Ссылка недействительна или уже использована", status=400)
+
+    def post(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             return JsonResponse({"error": "Неверная ссылка"}, status=400)
 
-        if default_token_generator.check_token(user, token):
-            return JsonResponse({"success": "Ссылка подтверждена, задайте новый пароль"}, status=200)
-        else:
-            return JsonResponse({"error": "Ссылка недействительна или уже использована"}, status=400)
+        if not default_token_generator.check_token(user, token):
+            return JsonResponse({"error": "Ссылка недействительна"}, status=400)
 
+        password1 = request.POST.get("password1")
+        password2 = request.POST.get("password2")
 
+        if not password1 or not password2:
+            return JsonResponse({"error": "Введите пароль дважды"}, status=400)
+        if password1 != password2:
+            return JsonResponse({"error": "Пароли не совпадают"}, status=400)
+
+        user.set_password(password1)
+        user.save()
+
+        response = HttpResponseRedirect(settings.FRONTEND_URL)
+        return response
+    
 @csrf_exempt
 def getUser(request):
     user = is_authenticate(request)

@@ -30,11 +30,12 @@ class Cheque_s(S.ModelSerializer):
 
 
 class OrderItem_S(S.ModelSerializer):
-    product_name = S.CharField(source='product.name', read_only=True)
+    product_name = S.CharField(source='product.name')
+    price = S.IntegerField(source="product.price")
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'product_name', 'count']
+        fields = ['id', 'product','price', 'product_name', 'count']
 
 
 class Order_s(S.ModelSerializer):

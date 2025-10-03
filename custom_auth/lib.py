@@ -7,10 +7,10 @@ from django.conf import settings
 User = get_user_model()
 
 
-def send_email(recipient_list:list):
+def send_email(recipient_list:list,msg:str,link:str):
     subject = "Тестовое письмо"
-    message = "Привет! Это письмо отправлено через Gmail SMTP."
-    from_email = settings.DEFAULT_FROM_EMAIL
+    message = f"{msg} -> {link}"
+    from_email = settings.GOOGLE_OWNER
 
     send_mail(subject, message, from_email, recipient_list)
 

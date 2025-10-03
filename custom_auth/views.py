@@ -20,7 +20,7 @@ from .s import *
 from django.shortcuts import get_object_or_404
 from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.encoding import force_bytes
+from django.utils.encoding import force_bytes,force_str
 User = Profile
 
 
@@ -221,7 +221,7 @@ def signup_view(request):
     token = default_token_generator.make_token(user)
     verify_link = f"{settings.HOST}/accounts/google/verify/{uidb64}/{token}/"
     
-    send_email([email])
+    send_email([email],"Перейдите по ссылке для потверждения аккаунта",verify_link)
 
     return JsonResponse({"data":verify_link},status=200)
 
@@ -280,8 +280,6 @@ class BucketViewList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
 
-
-
 class BucketViewDetail(APIView):
     permission_classes = [CustomPermDoubleClass,]
 
@@ -302,7 +300,41 @@ class BucketViewDetail(APIView):
 
 
 
+def reset_password(request):
+    if request.method != "POST":
+        return JsonResponse({"error":"Method not allowed"},status=503)
+    
+    email = request.POST.get("email",None)
+    if not email:
+        return JsonResponse({"error":"Не хватает данных"},status=400)
+    
+    user = User.objects.filter(email=email).first()
+    if user is None:
+        return JsonResponse({"error":"Нет такого пользователя"},status=403)
+    
+    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    verify_link = f"{settings.HOST}/accounts/password/verify/{uidb64}/{token}/"
+    
+    send_email([email],"Зайдите по ссылке для сброса пароля",verify_link)
 
+    return JsonResponse({"data":"Ok"},status=200)
+
+
+
+
+class VerifyResetPassword(APIView):
+    def get(self,req,uidb64,token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return JsonResponse({"error": "Неверная ссылка"}, status=400)
+
+        if default_token_generator.check_token(user, token):
+            return JsonResponse({"success": "Ссылка подтверждена, задайте новый пароль"}, status=200)
+        else:
+            return JsonResponse({"error": "Ссылка недействительна или уже использована"}, status=400)
 
 
 @csrf_exempt

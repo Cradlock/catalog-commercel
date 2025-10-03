@@ -16,6 +16,10 @@ urlpatterns = [
     path("bucket/<int:pk>",BucketViewDetail.as_view()),
 
 
+    path("password/reset/",reset_password),
+    path("password/verify/<uidb64>/<token>/",VerifyResetPassword.as_view())
+
+
     
 
 ]

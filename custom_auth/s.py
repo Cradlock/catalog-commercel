@@ -30,14 +30,23 @@ class Cheque_s(S.ModelSerializer):
 
 
 class OrderItem_S(S.ModelSerializer):
-    product_name = S.CharField(source='product.title')
-    price = S.IntegerField(source="product.price")
-    image = S.ImageField(source="product.cover")
+    product_name = S.CharField(source='product.title', read_only=True)
+    price = S.IntegerField(source='product.price', read_only=True)
+    image = S.SerializerMethodField()
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product','image','price', 'product_name', 'count']
+        fields = ['id', 'product', 'image', 'price', 'product_name', 'count']
 
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if obj.product.cover:
+            if request:
+                return request.build_absolute_uri(obj.product.cover.url)
+            # fallback если request нет
+            from django.conf import settings
+            return f"{settings.HOST}{obj.product.cover.url}"
+        return None
 
 class Order_s(S.ModelSerializer):
 

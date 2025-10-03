@@ -32,6 +32,7 @@ class Cheque_s(S.ModelSerializer):
 class OrderItem_S(S.ModelSerializer):
     product_name = S.CharField(source='product.title')
     price = S.IntegerField(source="product.price")
+    image = S.ImageField(source="product.cover")
 
     class Meta:
         model = OrderItem

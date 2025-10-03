@@ -18,7 +18,9 @@ class OrderItem(models.Model):
     count = models.PositiveIntegerField(default=1)
     product = models.ForeignKey(Product,on_delete=models.CASCADE)
     user = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name='cart_items')
-
+    
+    class Meta:
+        unique_together = ('user', 'product')
 class Info(models.Model):
     cashier_numbers = models.JSONField()
     title = models.CharField(max_length=255)

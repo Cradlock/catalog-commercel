@@ -281,7 +281,7 @@ class BucketViewList(APIView):
         if not product_id:
             return Response({"error": "product is required"}, status=400)
 
-        # Проверяем, есть ли такой товар в корзине
+        
         item, created = OrderItem.objects.get_or_create(
             user=user,
             product_id=product_id,
@@ -289,12 +289,12 @@ class BucketViewList(APIView):
         )
 
         if not created:
-            # если уже есть, увеличиваем количество
             item.count += count
             item.save()
 
         serializer = OrderItem_S(item, context={'request': request})
         return Response(serializer.data, status=201)
+    
 class BucketViewDetail(APIView):
     permission_classes = [CustomPermDoubleClass,]
 

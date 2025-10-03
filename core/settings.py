@@ -172,6 +172,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CSRF_COOKIE_HTTPONLY = False  # иначе JS не сможет прочитать куку
+CSRF_COOKIE_SECURE = True     # включите на проде (только https)
+CSRF_TRUSTED_ORIGINS = [FRONTEND_URL]
+
 SESSION_COOKIE_SECURE = True  # только HTTPS
 CSRF_COOKIE_SECURE = True
 JWT_AUTH_COOKIE_SECURE = True

@@ -7,7 +7,7 @@ from django.utils import timezone
 from datetime import timedelta
 import re
 from rest_framework.pagination import PageNumberPagination
-
+import math
 from .models import *
 from .s import *
 
@@ -22,8 +22,20 @@ def _bool_param(v):
 
 class ProductPagination(PageNumberPagination):
     page_size = 4
-    page_size_query_param = "page_size"
-    max_page_size = 100
+    
+    def get_paginated_response(self, data):
+        total_count = self.page.paginator.count
+        page_size = self.get_page_size(self.request)
+        num_pages = math.ceil(total_count / page_size) if page_size else 1
+
+        return Response({
+            "count": total_count,
+            "num_pages": num_pages,
+            "current_page": self.page.number,
+            "next": self.get_next_link(),
+            "previous": self.get_previous_link(),
+            "results": data,
+        })
 
 
 class GalleryViewSet(viewsets.ModelViewSet):

@@ -285,7 +285,7 @@ class BucketViewList(APIView):
         item, created = OrderItem.objects.get_or_create(
             user=user,
             product_id=product_id,
-            defaults={'count': count}
+            defaults={'count': 1}
         )
 
         if not created:

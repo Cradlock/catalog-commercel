@@ -278,14 +278,12 @@ def editEvent(request, id):
 
     # Обновление ManyToMany
     brand_ids = request.POST.getlist("brands")
-    if brand_ids:
-        brands = Brand.objects.filter(id__in=brand_ids)
-        event.brands.set(brands)
+    brands = Brand.objects.filter(id__in=brand_ids)
+    event.brands.set(brands)
 
     category_ids = request.POST.getlist("categories")
-    if category_ids:
-        categories = Category.objects.filter(id__in=category_ids)
-        event.categories.set(categories)
+    categories = Category.objects.filter(id__in=category_ids)
+    event.categories.set(categories)
 
     # Работа с галереей
     deleted_gallery = request.POST.getlist("deleted_gallery")

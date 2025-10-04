@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.permissions import BasePermission 
 from django.core.mail import send_mail
 from django.conf import settings
+from custom_auth.models import Profile
 User = get_user_model()
 
 
@@ -26,7 +27,7 @@ def is_authenticate(request) -> bool:
         if not user_id:
             return False
         
-        user = User.objects.get(id=user_id)
+        user = Profile.objects.get(id=user_id)
         if not user.is_active:
             return False
         return user

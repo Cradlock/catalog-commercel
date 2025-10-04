@@ -14,6 +14,7 @@ urlpatterns = [
     path("user/",getUser),
     path("bucket/",BucketViewList.as_view()),
     path("bucket/<int:pk>",BucketViewDetail.as_view()),
+    path("user/number/",setNumber),
 
 
     path("password/reset/",reset_password),

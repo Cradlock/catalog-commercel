@@ -410,6 +410,19 @@ def getUser(request):
         return HttpResponse("Forbidden",status=403)
     return JsonResponse(Profile_s(user).data,status=200)
 
+@csrf_exempt
+def setNumber(request):
+    user = is_authenticate(request)
+    if not user:
+        return JsonResponse({"error":"Not authenticate"},status=403)
+    
+    number = request.GET.get("number")
+    if not number:
+        return JsonResponse({"error":"Not defined number"},status=400)
+    
+    user.phone_number = number 
+    user.save()
+    return JsonResponse({"data":"Set number"},status=200)
 
 
 def getInfo(request):

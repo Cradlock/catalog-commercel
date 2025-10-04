@@ -299,40 +299,36 @@ class BucketViewDetail(APIView):
     permission_classes = [CustomPermDoubleClass,]
 
     def put(self, request, pk):
-        user = get_object_or_404(Profile,pk=get_id(request))
+        user = get_object_or_404(Profile, pk=get_id(request))
         item = get_object_or_404(user.cart_items, pk=pk)
-        operation = request.data.get("operation",None)
+        operation = request.data.get("operation", None)
+    
         if operation is None:
             return Response(status=status.HTTP_409_CONFLICT)
-        
-        serializer = OrderItem_S(item, data=request.data, partial=True)
-        
-        if serializer.is_valid():
-            serializer.save()
-
-            if operation.isdigit():
-                new_count = int(operation)
-                if new_count > 0:
-                    item.count = new_count
-                    item.save()
-                elif new_count == 0:
-                    item.delete()
-                    return Response(status=status.HTTP_204_NO_CONTENT)
-
-            if operation == "inc":
-                item.count += 1
+    
+        # Работаем напрямую с count
+        if operation.isdigit():
+            new_count = int(operation)
+            if new_count > 0:
+                item.count = new_count
                 item.save()
-            if operation == "dec":
-                if item.count <= 1:
-                    item.delete()
-                    return Response(status=status.HTTP_204_NO_CONTENT)
-                else:
-                    item.count -= 1
-                    item.save()
-
-            return Response(OrderItem_S(item).data, status=status.HTTP_200_OK)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            elif new_count == 0:
+                item.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+    
+        elif operation == "inc":
+            item.count += 1
+            item.save()
+    
+        elif operation == "dec":
+            if item.count <= 1:
+                item.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                item.count -= 1
+                item.save()
+    
+        return Response({"id": item.id, "count": item.count}, status=status.HTTP_200_OK)
 
     def delete(self, request, pk):
         user = get_object_or_404(Profile,pk=get_id(request))

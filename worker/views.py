@@ -350,7 +350,7 @@ def create_order(request):
     if not user:
         return HttpResponse("Forbidden",status=403)
     
-    if request.method != "POST":
+    if request.method != "GET":
         return HttpResponse("Method not alowed",status=405)
     
     order_items = OrderItem.objects.filter(user=user)
@@ -372,10 +372,9 @@ def create_order(request):
     obj = Order.objects.create(user=user,created_date=timezone.now(),products=product_list,total_price=summa)
     order_items.delete()
 
-    cashier_number = Info.objects.first().cashier_numbers
+    cashier_number = Info_s(Info.objects.first()).get_random_cashier_number()
 
-    return JsonResponse(Order_s(obj).data,status=200)
-
+    return JsonResponse({"data":cashier_number}.data,status=200)
 
 
 @csrf_exempt

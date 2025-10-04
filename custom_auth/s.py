@@ -10,7 +10,7 @@ class Info_s(S.ModelSerializer):
         fields = "__all__"
 
     
-    def get_random_cashier_number(self):
+    def get_random_cashier_number(self,obj):
         if self.obj.cashier_numbers:
             return random.choice(self.obj.cashier_numbers)
         return None

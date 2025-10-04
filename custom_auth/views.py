@@ -420,3 +420,6 @@ def getInfo(request):
     
     return JsonResponse(Info_s(obj,context={"request":request}).data,status=200)
 
+
+
+

@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from django.http import HttpResponse,JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 import json
 
 
@@ -165,51 +166,67 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = Event_s
     queryset = Event.objects.all()
 
-
 @csrf_exempt
 def addEvent(request):
+    # --- Проверка прав доступа ---
     if not is_admin(request):
         return HttpResponse("Forbidden", status=403)
 
     if request.method != "POST":
-        return HttpResponse("Method not allowed", status=405)
+        return HttpResponse("Method Not Allowed", status=405)
 
-    title = request.POST.get("title")
-    desc = request.POST.get("desc")
-    discount_precent = float(request.POST.get("discount_precent", 1.0))
-    is_special = request.POST.get("is_special") == "true"
-    type_special = request.POST.get("type_special")
+    try:
+        # --- Основные данные ---
+        title = request.POST.get("title", "").strip()
+        desc = request.POST.get("desc", "").strip()
+        discount_precent = float(request.POST.get("discount_precent", 1.0))
+        is_special = request.POST.get("is_special") == "true"
+        type_special = request.POST.get("type_special", "").strip() or None
 
-    date_start = request.POST.get("date_start")     
-    date_end = request.POST.get("date_end")
+        # --- Проверяем даты ---
+        date_start = parse_datetime(request.POST.get("date_start") or "")
+        date_end = parse_datetime(request.POST.get("date_end") or "")
 
-    # Преобразуем ManyToMany: бренды и категории
-    brand_ids = request.POST.getlist("brands")  # список id брендов
-    category_ids = request.POST.getlist("categories")  # список id категорий
+        if not title:
+            return JsonResponse({"error": "Поле title обязательно"}, status=400)
+        if not date_start:
+            return JsonResponse({"error": "Поле date_start обязательно и должно быть валидной датой"}, status=400)
 
-    brands = Brand.objects.filter(id__in=brand_ids)
-    categories = Category.objects.filter(id__in=category_ids)
+        # --- ManyToMany ---
+        brand_ids = request.POST.getlist("brands")
+        category_ids = request.POST.getlist("categories")
 
-    event = Event.objects.create(
-        title=title,
-        desc=desc,
-        discount_precent=discount_precent,
-        is_special=is_special,
-        type_special=type_special,
-        date_start=date_start if date_start else None,
-        date_end=date_end if date_end else None
-    )
+        brands = Brand.objects.filter(id__in=brand_ids)
+        categories = Category.objects.filter(id__in=category_ids)
 
-    event.brands.set(brands)
-    event.categories.set(categories)
+        # --- Создание события ---
+        event = Event.objects.create(
+            title=title,
+            desc=desc,
+            discount_precent=discount_precent,
+            is_special=is_special,
+            type_special=type_special,
+            date_start=date_start,
+            date_end=date_end,
+        )
 
-    # Галерея
-    images_gallery = request.FILES.getlist("gallery")
-    for img in images_gallery:
-        GalleryEvent.objects.create(file=img, event_id=event)
+        # --- Связи ManyToMany ---
+        if brands.exists():
+            event.brands.set(brands)
+        if categories.exists():
+            event.categories.set(categories)
 
-    return JsonResponse(Event_s(event, context={'request': request}).data, status=200)
+        # --- Галерея ---
+        images_gallery = request.FILES.getlist("gallery")
+        for img in images_gallery:
+            GalleryEvent.objects.create(file=img, event_id=event)
 
+        return JsonResponse(Event_s(event, context={'request': request}).data, status=201)
+
+    except ValueError as e:
+        return JsonResponse({"error": f"Ошибка данных: {str(e)}"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": f"Ошибка сервера: {str(e)}"}, status=500)
 
 @csrf_exempt
 def editEvent(request, id):
@@ -352,6 +369,8 @@ def create_order(request):
 
     obj = Order.objects.create(user=user,created_date=timezone.now(),products=product_list,total_price=summa)
     order_items.delete()
+
+    cashier_number = Info.objects.first().cashier_numbers
 
     return JsonResponse(Order_s(obj).data,status=200)
 

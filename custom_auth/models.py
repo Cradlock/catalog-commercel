@@ -45,7 +45,7 @@ class Event(models.Model):
     desc = models.TextField()
 
     discount_precent = models.FloatField(default=1.0)
-    
+
     brands = models.ManyToManyField(Brand)
     categories = models.ManyToManyField(Category)
 
@@ -56,6 +56,7 @@ class Event(models.Model):
 class GalleryEvent(models.Model):
     file = models.ImageField()
     event_id = models.ForeignKey(Event,on_delete=models.CASCADE,related_name="gallery")
+
 
 
 class Order(models.Model):

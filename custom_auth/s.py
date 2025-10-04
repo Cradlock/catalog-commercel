@@ -1,10 +1,19 @@
 from rest_framework import serializers as S 
 from .models import *
+import random
 
 class Info_s(S.ModelSerializer):
+    random_cashier_number = S.SerializerMethodField()
+
     class Meta:
         model = Info 
         fields = "__all__"
+
+    
+    def get_random_cashier_number(self, obj):
+        if obj.cashier_numbers:
+            return random.choice(obj.cashier_numbers)
+        return None
 
 
 class EventGallery_s(S.ModelSerializer):

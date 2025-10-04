@@ -265,12 +265,16 @@ def editEvent(request, id):
         event.type_special = type_special
 
     date_start = request.POST.get("date_start")
-    if date_start is not None:
+    if date_start:
         event.date_start = date_start
-
+    else:
+        event.date_start = None
+    
     date_end = request.POST.get("date_end")
-    if date_end is not None:
+    if date_end:
         event.date_end = date_end
+    else:
+        event.date_end = None
 
     # Обновление ManyToMany
     brand_ids = request.POST.getlist("brands")

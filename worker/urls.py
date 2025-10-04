@@ -33,7 +33,8 @@ urlpatterns = [
 
     path("check/cheque/<uuid:uuid>",check_cheque),
     path("create/order/",create_order),
-    path("set/order/",set_order)
+    path("set/order/",set_order),
+    path("orders/",OrdersViewList.as_view())
 
 ]
 

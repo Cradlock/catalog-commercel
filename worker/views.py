@@ -357,6 +357,10 @@ def create_order(request):
     if not order_items.exists():
         return JsonResponse({"data":"No items in bucket"}, status=400)  
     
+    client_number = request.GET.get("client_number")
+    if not client_number:
+        return JsonResponse({"data":"Not number"}, status=400)  
+    
     product_list = []
     summa = 0
     for item in order_items:
@@ -369,7 +373,7 @@ def create_order(request):
         product_list.append(product_info)
         summa += product_info["price"]
 
-    obj = Order.objects.create(user=user,created_date=timezone.now(),products=product_list,total_price=summa)
+    obj = Order.objects.create(client_number=client_number,user=user,created_date=timezone.now(),products=product_list,total_price=summa)
     order_items.delete()
 
     info_instance = Info_s(Info.objects.first())
@@ -406,3 +410,7 @@ def set_order(request):
 
 
 
+class OrdersViewList(generics.ListAPIView):
+    permission_classes = [CustomPermClass,]
+    serializer_class = Order_s
+    queryset = Order.objects.all()

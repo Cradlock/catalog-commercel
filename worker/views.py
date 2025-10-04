@@ -379,7 +379,7 @@ def create_order(request):
     info_instance = Info_s(Info.objects.first())
     cashier_number = info_instance.get_random_cashier_number(Info.objects.first())
     
-    return JsonResponse({"data":cashier_number},status=200)
+    return JsonResponse({"data":cashier_number,"order":obj.id},status=200)
 
 
 @csrf_exempt

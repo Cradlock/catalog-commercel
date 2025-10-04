@@ -355,7 +355,7 @@ def create_order(request):
     
     order_items = OrderItem.objects.filter(user=user)
     if not order_items.exists():
-        return HttpResponse("No items in bucket", status=400)  
+        return JsonResponse({"data":"No items in bucket"}, status=400)  
     
     product_list = []
     summa = 0
@@ -372,8 +372,9 @@ def create_order(request):
     obj = Order.objects.create(user=user,created_date=timezone.now(),products=product_list,total_price=summa)
     order_items.delete()
 
-    cashier_number = Info_s(Info.objects.first()).get_random_cashier_number()
-
+    info_instance = Info_s(Info.objects.first())
+    cashier_number = info_instance.get_random_cashier_number(Info.objects.first())
+    
     return JsonResponse({"data":cashier_number}.data,status=200)
 
 

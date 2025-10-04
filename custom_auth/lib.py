@@ -6,7 +6,22 @@ from django.core.mail import send_mail
 from django.conf import settings
 from custom_auth.models import Profile
 User = get_user_model()
+import re
 
+def is_valid_phone(number):
+
+    clean_number = re.sub(r"[ \-\(\)]", "", number)
+    
+    # Проверяем формат: может начинаться с +, далее только цифры
+    if not re.fullmatch(r"\+?\d+", clean_number):
+        return False
+    
+    # Проверяем длину номера (пример: 11-12 цифр для России)
+    digits_only = re.sub(r"\D", "", clean_number)  # только цифры
+    if len(digits_only) < 10 or len(digits_only) > 15:
+        return False
+    
+    return True
 
 def send_email(recipient_list:list,msg:str,link:str):
     subject = "Тестовое письмо"

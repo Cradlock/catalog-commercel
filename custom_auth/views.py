@@ -13,7 +13,7 @@ import datetime
 import jwt
 import requests
 from .models import *
-from .lib import CustomPermDoubleClass,get_id,is_authenticate,send_email
+from .lib import is_valid_phone,CustomPermDoubleClass,get_id,is_authenticate,send_email
 from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlparse
@@ -417,7 +417,7 @@ def setNumber(request):
         return JsonResponse({"error":"Not authenticate"},status=403)
     
     number = request.GET.get("number")
-    if not number:
+    if not number or not is_valid_phone(number):
         return JsonResponse({"error":"Not defined number"},status=400)
     
     user.phone_number = number 

@@ -50,6 +50,12 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand,on_delete=models.SET_NULL,null=True)
     last_buy = models.DateTimeField(auto_now_add=True)
     cover = models.ImageField()
+    normalized_text = models.TextField(blank=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        full_text = f"{self.title} {self.desc or ''}"
+        self.normalized_text = normalize_text_for_db(full_text)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

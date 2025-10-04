@@ -133,12 +133,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         # --- Global search q ---
         q = request.query_params.get("q")
         if q:
-            tokens = [t for t in normalize_text_for_db(q).split() if t]
-            if tokens:
-                q_obj = Q()
-                for tk in tokens:
-                    q_obj |= (Q(title__icontains=tk) | Q(desc__icontains=tk))
-                qs = qs.filter(q_obj)
+            tokens_raw = [t.strip() for t in q.split() if t]
+            tokens_norm = [normalize_text_for_db(t).strip() for t in q.split() if t]
+        
+            q_obj = Q()
+            for tk in tokens_raw + tokens_norm:
+                q_obj |= Q(title__icontains=tk) | Q(desc__icontains=tk) | Q(normalized_text__icontains=tk)
+        
+            qs = qs.filter(q_obj)
         
 
         # --- Ordering ---

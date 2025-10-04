@@ -53,7 +53,7 @@ class Product(models.Model):
     normalized_text = models.TextField(blank=True, editable=False)
 
     def save(self, *args, **kwargs):
-        full_text = f"{self.title} {self.desc or ''}"
+        full_text = f"{self.title} "
         self.normalized_text = normalize_text_for_db(full_text)
         super().save(*args, **kwargs)
 

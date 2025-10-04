@@ -137,7 +137,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             if tokens:
                 q_obj = Q()
                 for tk in tokens:
-                    q_obj |= (Q(normalized_text__icontains=tk) | Q(title__icontains=tk) | Q(desc__icontains=tk))
+                    q_obj |= (Q(title__icontains=tk) | Q(desc__icontains=tk))
                 qs = qs.filter(q_obj)
         
 

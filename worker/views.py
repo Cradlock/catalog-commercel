@@ -401,7 +401,7 @@ def create_order(request):
 
     return JsonResponse({
         "data": cashier_number,
-        "order": obj.id
+        "order": obj
     }, status=200)
 
 @csrf_exempt

@@ -399,10 +399,11 @@ def create_order(request):
     # --- Очистка корзины ---
     order_items.delete()
 
-
+    # Сериализуем объект
+    serializer = Order_s(obj)
 
     return JsonResponse({
-        "order": obj
+        "order": serializer.data
     }, status=200)
 
 @csrf_exempt

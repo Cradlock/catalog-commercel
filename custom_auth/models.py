@@ -63,7 +63,7 @@ class Order(models.Model):
     created_date = models.DateTimeField()
     products = models.JSONField(default=list)
     total_price = models.PositiveIntegerField(default=0)
-    user = models.ForeignKey(Profile,on_delete=models.CASCADE)
+    user = models.ForeignKey(Profile,on_delete=models.CASCADE,related_name='orders')
     client_number = models.CharField(max_length=30, null=True, blank=True)
 
 

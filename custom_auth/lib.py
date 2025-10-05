@@ -5,6 +5,10 @@ from rest_framework.permissions import BasePermission
 from django.core.mail import send_mail
 from django.conf import settings
 from custom_auth.models import Profile
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
 User = get_user_model()
 import re
 
@@ -23,12 +27,42 @@ def is_valid_phone(number):
     
     return True
 
-def send_email(recipient_list:list,msg:str,link:str):
+def send_email(recipient:str,msg:str,link:str):
     subject = "Тестовое письмо"
     message = f"{msg} -> {link}"
     from_email = settings.GOOGLE_OWNER
+    password = settings.EMAIL_PASSWORD
 
-    send_mail(subject, message, from_email, recipient_list)
+    message = MIMEMultipart("alternative")
+    message["From"] = from_email
+    message["To"] = recipient
+    message["Subject"] = f"Сообщения от DTS ({msg})"
+
+    text = ""
+    html = f"""
+<html>
+  <body>
+    <p>Привет!<br>
+       <a href="{link}">Нажми здесь для{msg}</a>
+    </p>
+  </body>
+</html>
+    """
+    message.attach(MIMEText(text, "plain"))
+    message.attach(MIMEText(html, "html"))
+
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, message.as_string())
+        print("Письмо успешно отправлено!")
+    except Exception as e:
+        print(f"Ошибка при отправке: {e}")
+
+
+
+
 
 def is_authenticate(request) -> bool:
     token = request.COOKIES.get("access_token")

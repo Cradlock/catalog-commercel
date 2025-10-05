@@ -222,7 +222,7 @@ def signup_view(request):
     token = default_token_generator.make_token(user)
     verify_link = f"{settings.HOST}/accounts/google/verify/{uidb64}/{token}/"
     
-    send_email([email],"Перейдите по ссылке для потверждения аккаунта",verify_link)
+    send_email([email],"Подверждение аккаунта",verify_link)
 
     return JsonResponse({"data":verify_link},status=200)
 
@@ -354,7 +354,7 @@ def reset_password(request):
     token = default_token_generator.make_token(user)
     verify_link = f"{settings.HOST}/accounts/password/verify/{uidb64}/{token}/"
     
-    send_email([email],"Зайдите по ссылке для сброса пароля",verify_link)
+    send_email([email],"Сброса пароля",verify_link)
 
     return JsonResponse({"data":"Ok"},status=200)
 

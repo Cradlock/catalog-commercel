@@ -383,24 +383,25 @@ def create_order(request):
         product_list.append(product_info)
         summa += product_info["price"]
 
+    # --- Выдача кассира ---
+    info_instance = Info_s(Info.objects.first())
+    cashier_number = info_instance.get_random_cashier_number(Info.objects.first())
     # --- Создание заказа ---
     obj = Order.objects.create(
         client_number=client_number,
         user=user,
         created_date=timezone.now(),
         products=product_list,
-        total_price=summa
+        total_price=summa,
+        cashier_number=cashier_number
     )
 
     # --- Очистка корзины ---
     order_items.delete()
 
-    # --- Выдача кассира ---
-    info_instance = Info_s(Info.objects.first())
-    cashier_number = info_instance.get_random_cashier_number(Info.objects.first())
+
 
     return JsonResponse({
-        "data": cashier_number,
         "order": obj
     }, status=200)
 

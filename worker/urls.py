@@ -34,6 +34,7 @@ urlpatterns = [
     path("check/cheque/<uuid:uuid>",check_cheque),
     path("create/order/",create_order),
     path("set/order/",set_order),
+    path("cancel/order/",cancel_order),
     path("orders/",OrdersViewList.as_view())
 
 ]

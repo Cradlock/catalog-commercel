@@ -343,44 +343,66 @@ def check_cheque(request,uuid):
 
 
 
-
 @csrf_exempt
 def create_order(request):
     user = is_authenticate(request)
     if not user:
-        return HttpResponse("Forbidden",status=403)
-    
+        return HttpResponse("Forbidden", status=403)
+
     if request.method != "GET":
-        return HttpResponse("Method not alowed",status=405)
-    
+        return HttpResponse("Method not allowed", status=405)
+
+    # --- 🔹 Проверка: есть ли уже заказ у пользователя ---
+    existing_order = Order.objects.filter(user=user).first()
+    if existing_order:
+        return JsonResponse({
+            "data": "У вас уже есть активный заказ",
+            "order_id": existing_order.id
+        }, status=400)
+
+    # --- Проверка наличия товаров в корзине ---
     order_items = OrderItem.objects.filter(user=user)
     if not order_items.exists():
-        return JsonResponse({"data":"No items in bucket"}, status=400)  
-    
+        return JsonResponse({"data": "No items in bucket"}, status=400)
+
+    # --- Проверка номера клиента ---
     client_number = request.GET.get("client_number")
     if not client_number:
-        return JsonResponse({"data":"Not number"}, status=400)  
-    
+        return JsonResponse({"data": "Not number"}, status=400)
+
+    # --- Формирование списка товаров ---
     product_list = []
     summa = 0
     for item in order_items:
         product_info = {
-            "id":item.product.id,
-            "title":item.product.title,
-            "price":item.count * item.product.price,
-            "count": item.count 
+            "id": item.product.id,
+            "title": item.product.title,
+            "price": item.count * item.product.price,
+            "count": item.count
         }
         product_list.append(product_info)
         summa += product_info["price"]
 
-    obj = Order.objects.create(client_number=client_number,user=user,created_date=timezone.now(),products=product_list,total_price=summa)
+    # --- Создание заказа ---
+    obj = Order.objects.create(
+        client_number=client_number,
+        user=user,
+        created_date=timezone.now(),
+        products=product_list,
+        total_price=summa
+    )
+
+    # --- Очистка корзины ---
     order_items.delete()
 
+    # --- Выдача кассира ---
     info_instance = Info_s(Info.objects.first())
     cashier_number = info_instance.get_random_cashier_number(Info.objects.first())
-    
-    return JsonResponse({"data":cashier_number,"order":obj.id},status=200)
 
+    return JsonResponse({
+        "data": cashier_number,
+        "order": obj.id
+    }, status=200)
 
 @csrf_exempt
 def set_order(request):
@@ -408,6 +430,25 @@ def set_order(request):
     return JsonResponse(Cheque_s(obj).data,status=200)
 
 
+@csrf_exempt
+def cancel_order(request):
+    user = is_authenticate(request)
+    if not user:
+        return HttpResponse("Forbidden", status=403)
+
+    if request.method != "GET":
+        return HttpResponse("Method not allowed", status=405)
+    
+    existing_orders = Order.objects.filter(user=user)
+    if not existing_orders.exists():
+        return JsonResponse({"data": "Нет активных заказов"}, status=400)
+
+    # --- Удаляем все заказы пользователя ---
+    count, _ = existing_orders.delete()
+
+    return JsonResponse({
+        "data": f"Отменено {count} заказ(ов)"
+    }, status=200)
 
 
 class OrdersViewList(generics.ListAPIView):

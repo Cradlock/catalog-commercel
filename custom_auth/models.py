@@ -64,7 +64,7 @@ class Order(models.Model):
     products = models.JSONField(default=list)
     total_price = models.PositiveIntegerField(default=0)
     user = models.ForeignKey(Profile,on_delete=models.CASCADE)
-    client_number = models.CharField(max_length=30)
+    client_number = models.CharField(max_length=30,default="")
 
 
 class Cheque(models.Model):

@@ -191,6 +191,8 @@ def login_view(request):
 
 @csrf_exempt
 def signup_view(request):
+    if request.method == "GET":
+        return render(request,"signup.html")
     if request.method != "POST":
         return HttpResponse("Method not allowed",status=500)
     
@@ -222,9 +224,9 @@ def signup_view(request):
     token = default_token_generator.make_token(user)
     verify_link = f"{settings.HOST}/accounts/google/verify/{uidb64}/{token}/"
     
-    send_email([email],"Подверждение аккаунта",verify_link)
+    send_email(email,"Подверждение аккаунта",verify_link)
 
-    return JsonResponse({"data":verify_link},status=200)
+    return JsonResponse({"data":"Ok"},status=200)
 
 
     
@@ -247,21 +249,37 @@ def logout_view(request):
 class VerifyEmailView(APIView):
     def get(self, request, uidb64, token):
         try:
-            # Декодируем uidb64, чтобы получить ID пользователя
             uid = urlsafe_base64_decode(uidb64).decode()
             user = User.objects.get(pk=uid)
         except (User.DoesNotExist, ValueError, TypeError, OverflowError):
             return JsonResponse({"error": "Неверная ссылка"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Проверяем, активен ли пользователь
         if user.is_active:
             return JsonResponse({"error": "Аккаунт уже подтверждён"}, status=status.HTTP_403_FORBIDDEN)
 
-        # Проверяем токен
         if default_token_generator.check_token(user, token):
             user.is_active = True
             user.save()
-            return JsonResponse({"status": "Аккаунт успешно активирован"}, status=status.HTTP_200_OK)
+
+            jwt_payload = {
+                "user_id": user.id,
+                "exp": datetime.datetime.utcnow() + timedelta(hours=24),
+            }
+            jwt_token = jwt.encode(jwt_payload, settings.SECRET_KEY, algorithm="HS256")
+
+            response = HttpResponseRedirect(settings.FRONTEND_URL)
+            response.set_cookie(
+                key="access_token",
+                value=jwt_token,
+                httponly=True,
+                secure=True,
+                samesite="None",
+                domain=urlparse(settings.HOST).hostname,  
+                path="/",
+                max_age=24*60*60
+            )
+            return response
+
         else:
             return JsonResponse({"error": "Токен недействителен или просрочен"}, status=status.HTTP_400_BAD_REQUEST)
 class BucketViewList(APIView):
@@ -275,8 +293,8 @@ class BucketViewList(APIView):
 
     def post(self, request):
         user = get_object_or_404(Profile, pk=get_id(request))
-        product_id = request.data.get('product')  # ожидаем, что приходит id продукта
-        count = int(request.data.get('count', 1))  # количество по умолчанию = 1
+        product_id = request.data.get('product') 
+        count = int(request.data.get('count', 1)) 
 
         if not product_id:
             return Response({"error": "product is required"}, status=400)
@@ -354,10 +372,9 @@ def reset_password(request):
     token = default_token_generator.make_token(user)
     verify_link = f"{settings.HOST}/accounts/password/verify/{uidb64}/{token}/"
     
-    send_email([email],"Сброса пароля",verify_link)
+    send_email(email,"Сброса пароля",verify_link)
 
     return JsonResponse({"data":"Ok"},status=200)
-
 
 
 
@@ -397,10 +414,29 @@ class VerifyResetPassword(APIView):
         if password1 != password2:
             return JsonResponse({"error": "Пароли не совпадают"}, status=400)
 
+        # Сбрасываем пароль
         user.set_password(password1)
         user.save()
 
+        # Генерация JWT-токена
+        jwt_payload = {
+            "user_id": user.id,
+            "exp": datetime.datetime.utcnow() + timedelta(hours=24),
+        }
+        jwt_token = jwt.encode(jwt_payload, settings.SECRET_KEY, algorithm="HS256")
+
+        # Ответ с куки и перенаправлением на фронтенд
         response = HttpResponseRedirect(settings.FRONTEND_URL)
+        response.set_cookie(
+            key="access_token",
+            value=jwt_token,
+            httponly=True,
+            secure=True,
+            samesite="None",
+            domain=urlparse(settings.HOST).hostname,  # если локально, можно убрать
+            path="/",
+            max_age=24*60*60
+        )
         return response
     
 @csrf_exempt

@@ -28,7 +28,7 @@ def is_valid_phone(number):
     return True
 
 def send_email(recipient:str,msg:str,link:str):
-    subject = "Тестовое письмо"
+    print(1)
     message = f"{msg} -> {link}"
     from_email = settings.GOOGLE_OWNER
     password = settings.EMAIL_PASSWORD
@@ -43,7 +43,7 @@ def send_email(recipient:str,msg:str,link:str):
 <html>
   <body>
     <p>Привет!<br>
-       <a href="{link}">Нажми здесь для{msg}</a>
+       <a href="{link}">Нажми здесь для {msg}</a>
     </p>
   </body>
 </html>
@@ -54,8 +54,8 @@ def send_email(recipient:str,msg:str,link:str):
     try:
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.starttls()
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, message.as_string())
+            server.login(from_email, password)
+            server.sendmail(from_email, recipient, message.as_string())
         print("Письмо успешно отправлено!")
     except Exception as e:
         print(f"Ошибка при отправке: {e}")

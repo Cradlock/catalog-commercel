@@ -58,7 +58,6 @@ class OrderItem_S(S.ModelSerializer):
         return None
 
 class Order_s(S.ModelSerializer):
-
     class Meta:
         model = Order
         fields = "__all__"

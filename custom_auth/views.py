@@ -408,7 +408,12 @@ def getUser(request):
     user = is_authenticate(request)
     if not user:
         return HttpResponse("Forbidden",status=403)
-    return JsonResponse(Profile_s(user).data,status=200)
+    
+    existing_orders = Order.objects.filter(user=user)
+    if not existing_orders.exists():
+        return JsonResponse({"data": "Нет активных заказов"}, status=400)
+
+    return JsonResponse(Profile_s(user).data ,status=200)
 
 @csrf_exempt
 def setNumber(request):

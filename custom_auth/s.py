@@ -66,6 +66,7 @@ class Order_s(S.ModelSerializer):
 
 class Profile_s(S.ModelSerializer): 
     bucket = OrderItem_S(   source='cart_items',many=True,read_only=True)
+    orders = Order_s(source='orders', many=True, read_only=True)
     class Meta:
         model = Profile
-        fields = [ "username","bucket","phone_number" ]
+        fields = [ "username","bucket","phone_number","orders" ]

@@ -52,7 +52,7 @@ def send_email(recipient:str,msg:str,link:str):
     message.attach(MIMEText(html, "html"))
 
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        with smtplib.SMTP(settings.EMAIL_HOST, int(settings.EMAIL_PORT)) as server:
             server.starttls()
             server.login(from_email, password)
             server.sendmail(from_email, recipient, message.as_string())

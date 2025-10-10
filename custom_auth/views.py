@@ -129,7 +129,7 @@ class GoogleCallbackView(APIView):
 
         # Редирект на фронтенд с cookie
         rurl = is_admin if settings.FRONTEND_URL.split(",")[-1].strip() else settings.FRONTEND_URL.split(",")[0].strip() 
-        response = HttpResponseRedirect(settings.FRONTEND_URL.split(",")[-1].strip)
+        response = HttpResponseRedirect(settings.FRONTEND_URL.split(",")[-1].strip())
         response.set_cookie(
             key="access_token",
             value=jwt_token,
